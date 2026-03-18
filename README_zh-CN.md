@@ -1,3 +1,9 @@
+<div align="center">
+  <a href="README.md">English</a> | <a href="README_zh-CN.md">简体中文</a>
+</div>
+
+<br>
+
 # 🚀 Resume-Helper: 拒绝“AI 塑料味”的诚信简历定制引擎
 
 > **“不要让 AI 的幻觉，毁掉你真实的职业生涯。”**
@@ -21,6 +27,7 @@ node optimize-resume.js my-resume.md "Python, 微服务, 高并发, 敏捷开发
 # 3. 将优化后的纯净版 Markdown 一键转为原生排版的 PDF
 node export-pdf.js my-resume-optimized.md
 
+```
 🔥 核心特性 (Features)
 
     🛡️ 独创「反幻觉协议」：绝对禁止捏造工作经历和项目数据！引擎只被允许提取、转化和重组你现有的经验，将其翻译成目标岗位最想看到的“行话”，保护你的职业信誉。
