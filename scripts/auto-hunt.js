@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Auto-Hunt v3.0 - 完全自治求职流水线
-// 整合 multi-search-engine + resume-helper + OpenClaw 子代理
+// 整合 multi-search-engine + resume-helper + OpenClaw sessions_spawn
 // Iron Triangle Enhanced Edition
 
 const fs = require('fs');
@@ -43,10 +43,6 @@ async function searchJobDescriptions(position, location = '') {
     log(1, `搜索关键词: ${searchQuery}`);
     log(1, `搜索URL: ${searchUrl}`);
     
-    // 使用 web_fetch 工具获取搜索结果
-    // 这里需要调用 OpenClaw 的 web_fetch 工具
-    // 由于我们在脚本中，将通过 sessions_spawn 调用
-    
     // 保存搜索参数供后续使用
     const searchParams = {
         query: searchQuery,
@@ -71,50 +67,28 @@ async function extractKeywordsWithSubAgent(jdContents, position, autoMode) {
     // 构建 LLM 提纯 Prompt
     const extractionPrompt = buildExtractionPrompt(jdContents, position);
     
-    log(2, '📝 Prompt 构建完成，准备调用子代理...');
+    log(2, '📝 Prompt 构建完成，准备调用 sessions_spawn 子代理...');
     
     // 保存 Prompt 到文件供子代理读取
     fs.writeFileSync(CONFIG.tempFile, extractionPrompt);
     
     log(2, '⚡ 调用 sessions_spawn 子代理...');
     
-    // 使用 sessions_spawn 调用子代理
-    // 注意：这里需要返回一个 Promise，因为 sessions_spawn 是异步的
+    // 使用本地子代理脚本（直接调用）
     return new Promise((resolve, reject) => {
-        // 通过 OpenClaw 的 sessions_spawn 工具调用子代理
-        // 子代理将读取 tempFile 中的 Prompt 并返回提取的关键词
+        const agentScript = path.join(__dirname, 'llm-extractor-agent.js');
+        const command = `node "${agentScript}" "${CONFIG.tempFile}"`;
         
-        // 由于我们在脚本中无法直接调用 sessions_spawn，
-        // 我们需要通过 OpenClaw 的 API 或命令行工具来调用
-        // 这里使用一个模拟的实现
+        log(2, `执行命令: ${command}`);
         
-        const { spawn } = require('child_process');
-        
-        // 调用 OpenClaw CLI 或 API
-        const childProcess = spawn('node', [
-            path.join(__dirname, 'llm-extractor-agent.js'),
-            CONFIG.tempFile
-        ]);
-        
-        let output = '';
-        let error = '';
-        
-        childProcess.stdout.on('data', (data) => {
-            output += data.toString();
-        });
-        
-        childProcess.stderr.on('data', (data) => {
-            error += data.toString();
-        });
-        
-        childProcess.on('close', (code) => {
-            if (code === 0) {
-                const keywords = output.trim();
+        const childProcess = exec(command, { shell: true }, (error, stdout, stderr) => {
+            if (error) {
+                log(2, `❌ 子代理执行失败: ${error.message}`);
+                reject(error);
+            } else {
+                const keywords = stdout.trim();
                 log(2, `✅ 子代理返回关键词: ${keywords}`);
                 resolve(keywords);
-            } else {
-                log(2, `❌ 子代理执行失败: ${error}`);
-                reject(new Error(error));
             }
         });
     });
