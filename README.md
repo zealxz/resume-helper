@@ -26,6 +26,7 @@ node optimize-resume.js my-resume.md "Python, Microservices, High Concurrency, A
 
 # 3. Export the optimized, clean Markdown to a native PDF
 node export-pdf.js my-resume-optimized.md
+```
 
 🔥 Core Features
 
@@ -62,20 +63,3 @@ Conceptualized and built by the "Iron Triangle":
     Gemini (Chief Architect) - Architecture Review & Commercialization Strategy
 
 “Let your true talent be seen accurately. Keep your career real.”
-
-
----
-
-### 📦 第二步：给你的中文版加上导航头
-
-打开你刚才保存了中文内容的那个文件（把它重命名为 `README_zh-CN.md`），并在最上面**第一行**加上这段导航代码，确保双向互通：
-
-```markdown
-<div align="center">
-  <a href="README.md">English</a> | <a href="README_zh-CN.md">简体中文</a>
-</div>
-
-<br>
-
-# 🚀 Resume-Helper: 拒绝“AI 塑料味”的诚信简历定制引擎
-...（保留后面的所有中文内容）...
