@@ -1,0 +1,38 @@
+{
+  "name": "resume-helper",
+  "version": "3.0.0",
+  "description": "AI-powered autonomous job hunting workflow with anti-hallucination protection, ATS scoring, and PDF export",
+  "main": "scripts/auto-hunt.js",
+  "scripts": {
+    "hunt": "node scripts/auto-hunt.js",
+    "optimize": "node scripts/optimize-resume.js",
+    "cover-letter": "node scripts/generate-cover-letter.js",
+    "export-pdf": "node scripts/export-pdf.js"
+  },
+  "keywords": [
+    "resume",
+    "optimization",
+    "ats",
+    "job-search",
+    "ai",
+    "openclaw",
+    "skill",
+    "pdf-export",
+    "autonomous",
+    "job-hunting"
+  ],
+  "author": "Iron Triangle Team (zealx + NOVA + Gemini)",
+  "license": "MIT",
+  "dependencies": {},
+  "peerDependencies": {
+    "md-to-pdf-cjk": ">=1.0.0",
+    "multi-search-engine": ">=2.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zealxz/resume-helper.git"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
