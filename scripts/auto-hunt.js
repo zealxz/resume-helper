@@ -6,7 +6,8 @@
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
-const { exec } = require('child_process');
+const childProcess = require('node:child_process');
+const outputPaths = require('./output-paths');
 
 // ========================================
 // 配置
@@ -77,11 +78,11 @@ async function extractKeywordsWithSubAgent(jdContents, position, autoMode) {
     // 使用本地子代理脚本（直接调用）
     return new Promise((resolve, reject) => {
         const agentScript = path.join(__dirname, 'llm-extractor-agent.js');
-        const command = `node "${agentScript}" "${CONFIG.tempFile}"`;
+
         
-        log(2, `执行命令: ${command}`);
+        log(2, `执行脚本: ${agentScript}`);
         
-        const childProcess = exec(command, { shell: true }, (error, stdout, stderr) => {
+        childProcess.execFile(process.execPath, [agentScript, CONFIG.tempFile], (error, stdout, stderr) => {
             if (error) {
                 log(2, `❌ 子代理执行失败: ${error.message}`);
                 reject(error);
@@ -163,12 +164,12 @@ async function optimizeResumeWithKeywords(resumePath, keywords, targetCompany) {
     log(3, '🔧 启动简历优化引擎');
     
     const optimizeScript = path.join(__dirname, 'optimize-resume.js');
-    const command = `node "${optimizeScript}" "${resumePath}" "${keywords}" "${targetCompany}"`;
+
     
-    log(3, `执行命令: ${command}`);
+    log(3, `执行脚本: ${optimizeScript}`);
     
     return new Promise((resolve, reject) => {
-        exec(command, { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
+        childProcess.execFile(process.execPath, [optimizeScript, resumePath, keywords, targetCompany], { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
             if (error) {
                 log(3, `❌ 优化失败: ${error.message}`);
                 reject(error);
@@ -187,15 +188,15 @@ async function optimizeResumeWithKeywords(resumePath, keywords, targetCompany) {
 async function deliverFinalOutputs(resumePath, targetCompany) {
     log(4, '📦 启动最终交付流程');
     
-    const optimizedResumePath = resumePath.replace(/\.md$/i, '-optimized.md');
+    const optimizedResumePath = outputPaths.optimizedResumePath(resumePath);
     const pdfExportScript = path.join(__dirname, 'export-pdf.js');
     
     // 4.1 导出PDF简历
     log(4, '📄 导出 PDF 简历...');
-    const pdfCommand = `node "${pdfExportScript}" "${optimizedResumePath}"`;
+
     
     await new Promise((resolve, reject) => {
-        exec(pdfCommand, (error, stdout, stderr) => {
+        childProcess.execFile(process.execPath, [pdfExportScript, optimizedResumePath], (error, stdout, stderr) => {
             if (error) reject(error);
             else resolve(stdout);
         });
@@ -204,8 +205,9 @@ async function deliverFinalOutputs(resumePath, targetCompany) {
     log(4, '✅ PDF 简历导出完成');
     
     // 4.2 检查输出文件
-    const pdfPath = optimizedResumePath.replace(/\.md$/i, '.pdf');
-    const reportPath = `简历优化说明-${targetCompany}.md`;
+    const parsed = path.parse(optimizedResumePath);
+    const pdfPath = path.join(parsed.dir, `${parsed.name}.pdf`);
+    const reportPath = outputPaths.reportPath(targetCompany);
     
     console.log('\n' + '='.repeat(60));
     console.log('🎉 最终交付完成！');
@@ -338,4 +340,6 @@ async function main() {
 }
 
 // 启动主流程
-main();
+if (require.main === module) main();
+
+module.exports = { extractKeywordsWithSubAgent, optimizeResumeWithKeywords, deliverFinalOutputs };

@@ -3,7 +3,7 @@
 // Added: Text Purity Protocol + ATS Report Export + Clean Resume Output
 
 const fs = require('fs');
-const path = require('path');
+const outputPaths = require('./output-paths');
 
 // ========================================
 // SECTION 1: Anti-Hallucination Protocol
@@ -203,7 +203,7 @@ function optimizeResume(resumeContent, jdKeywords, targetCompany) {
     console.log(`Improvement: +${afterScore.score - beforeScore.score}%`);
     
     // Generate independent optimization report
-    const reportPath = `简历优化说明-${targetCompany}.md`;
+    const reportPath = outputPaths.reportPath(targetCompany);
     generateOptimizationReport(beforeScore, afterScore, targetCompany, jdKeywords, reportPath);
     
     return {
@@ -236,7 +236,7 @@ console.log('🎯 Target company:', targetCompany);
 
 const result = optimizeResume(resumeContent, jdKeywords, targetCompany);
 
-const outputPath = resumePath.replace(/(\.[^.]+)$/, '-optimized$1');
+const outputPath = outputPaths.optimizedResumePath(resumePath);
 fs.writeFileSync(outputPath, result.resume);
 
 console.log(`\n✅ Optimized resume saved to: ${outputPath}`);

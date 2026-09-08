@@ -3,6 +3,7 @@
 // Replaces auto-apply feature (v2.0)
 
 const fs = require('fs');
+const { safeFilename } = require('./output-paths');
 
 // ========================================
 // COVER LETTER TEMPLATE ENGINE
@@ -133,7 +134,7 @@ console.log('📄 Generating personalized cover letter...');
 
 const coverLetter = generateCoverLetter(resumeContent, jdContent, companyName, position);
 
-const outputPath = `cover-letter-${companyName.toLowerCase().replace(/\s+/g, '-')}.txt`;
+const outputPath = `cover-letter-${safeFilename(companyName).toLowerCase().replace(/\s+/g, '-')}.txt`;
 fs.writeFileSync(outputPath, coverLetter);
 
 console.log(`\n✅ Cover letter saved to: ${outputPath}`);
